@@ -63,16 +63,16 @@ public class OracleCapacityExpansionIT extends BaseCapacityExpansionIT {
 
   @Override
   protected void shutdownDatabase(int port) {
-    shutOrRestart(port, true, "oralce");
+    shutOrRestart(port, true, "oracle");
   }
 
   @Override
   protected void startDatabase(int port) {
-    shutOrRestart(port, false, "oralce");
+    shutOrRestart(port, false, "oracle");
   }
 
   private void changeParams(int port, String newPw) {
-    String scriptPath = updateParamsScriptDir + "oralce.sh";
+    String scriptPath = updateParamsScriptDir + "oracle.sh";
     int res =
         executeShellScript(scriptPath, String.valueOf(port), newPw);
     if (res != 0) {
