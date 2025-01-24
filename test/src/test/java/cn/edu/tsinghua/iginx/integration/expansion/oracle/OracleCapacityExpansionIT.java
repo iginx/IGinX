@@ -19,9 +19,11 @@
  */
 package cn.edu.tsinghua.iginx.integration.expansion.oracle;
 
+import cn.edu.tsinghua.iginx.exception.SessionException;
 import cn.edu.tsinghua.iginx.integration.controller.Controller;
 import cn.edu.tsinghua.iginx.integration.expansion.BaseCapacityExpansionIT;
 import cn.edu.tsinghua.iginx.integration.expansion.constant.Constant;
+import cn.edu.tsinghua.iginx.integration.expansion.utils.SQLTestTools;
 import cn.edu.tsinghua.iginx.integration.tool.ConfLoader;
 import cn.edu.tsinghua.iginx.integration.tool.DBConf;
 import cn.edu.tsinghua.iginx.thrift.StorageEngineType;
@@ -84,5 +86,40 @@ public class OracleCapacityExpansionIT extends BaseCapacityExpansionIT {
     if (res != 0) {
       fail("Fail to " + (mode ? "shutdown" : "restart") + " " + DBName + port);
     }
+  }
+
+  @Override
+  protected void testPathOverlappedDataNotOverlapped() throws SessionException {
+    // before
+    String statement = "select status from mn.wf01.wt01;";
+    String expected =
+            "ResultSets:\n"
+                    + "+-----------------+-------------------+\n"
+                    + "|              key|mn.wf01.wt01.status|\n"
+                    + "+-----------------+-------------------+\n"
+                    + "|32690615153702352|           11111111|\n"
+                    + "|33357770565002400|           22222222|\n"
+                    + "+-----------------+-------------------+\n"
+                    + "Total line number = 2\n";
+    SQLTestTools.executeAndCompare(session, statement, expected);
+
+    String insert =
+            "insert into mn.wf01.wt01 (key, status) values (10, 33333333), (100, 44444444);";
+    session.executeSql(insert);
+
+    // after
+    statement = "select status from mn.wf01.wt01;";
+    expected =
+            "ResultSets:\n"
+                    + "+-----------------+-------------------+\n"
+                    + "|              key|mn.wf01.wt01.status|\n"
+                    + "+-----------------+-------------------+\n"
+                    + "|               10|           33333333|\n"
+                    + "|              100|           44444444|\n"
+                    + "|32690615153702352|           11111111|\n"
+                    + "|33357770565002400|           22222222|\n"
+                    + "+-----------------+-------------------+\n"
+                    + "Total line number = 4\n";
+    SQLTestTools.executeAndCompare(session, statement, expected);
   }
 }
