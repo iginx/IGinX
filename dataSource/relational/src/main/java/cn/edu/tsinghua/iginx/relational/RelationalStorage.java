@@ -218,6 +218,7 @@ public class RelationalStorage implements IStorage {
                     "jdbc:%s://%s:%s/?user=%s&password=%s",
                     engine, meta.getIp(), meta.getPort(), username, password);
     }
+    LOGGER.info("aaaaaaaaaaaa {}",connUrl);
     return connUrl;
   }
 

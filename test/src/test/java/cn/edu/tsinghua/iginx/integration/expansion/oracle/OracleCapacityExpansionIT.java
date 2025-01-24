@@ -22,7 +22,6 @@ package cn.edu.tsinghua.iginx.integration.expansion.oracle;
 import cn.edu.tsinghua.iginx.integration.controller.Controller;
 import cn.edu.tsinghua.iginx.integration.expansion.BaseCapacityExpansionIT;
 import cn.edu.tsinghua.iginx.integration.expansion.constant.Constant;
-import cn.edu.tsinghua.iginx.integration.expansion.mysql.MySQLHistoryDataGenerator;
 import cn.edu.tsinghua.iginx.integration.tool.ConfLoader;
 import cn.edu.tsinghua.iginx.integration.tool.DBConf;
 import cn.edu.tsinghua.iginx.thrift.StorageEngineType;
@@ -40,7 +39,7 @@ public class OracleCapacityExpansionIT extends BaseCapacityExpansionIT {
     super(
         StorageEngineType.relational,
         "engine=oracle, username=system",
-        new MySQLHistoryDataGenerator());
+        new OracleHistoryDataGenerator());
     ConfLoader conf = new ConfLoader(Controller.CONFIG_FILE);
     DBConf dbConf = conf.loadDBConf(conf.getStorageType());
     Constant.oriPort = dbConf.getDBCEPortMap().get(Constant.ORI_PORT_NAME);
@@ -76,7 +75,7 @@ public class OracleCapacityExpansionIT extends BaseCapacityExpansionIT {
     int res =
         executeShellScript(scriptPath, String.valueOf(port), mode, oldPw == null ? newPw : oldPw);
     if (res != 0) {
-      fail("Fail to update mysql params.");
+      fail("Fail to update oracle params.");
     }
   }
   protected void shutOrRestart(int port, boolean mode, String DBName) {
