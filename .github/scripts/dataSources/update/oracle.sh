@@ -21,7 +21,7 @@
 CONTAINER_NAME="oracle23-$1"  # 容器名称
 DATABASE_USER="system"
 
-docker exec -it $CONTAINER_NAME bash -c "
+docker exec $CONTAINER_NAME bash -c "
       sqlplus -s / as sysdba <<EOF
       ALTER USER $DATABASE_USER IDENTIFIED BY $2;
       EXIT;
