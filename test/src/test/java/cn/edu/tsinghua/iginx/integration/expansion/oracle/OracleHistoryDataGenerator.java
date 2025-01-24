@@ -34,7 +34,7 @@ public class OracleHistoryDataGenerator extends BaseHistoryDataGenerator {
   private static final char SEPARATOR = '.';
 
   private static final String QUERY_DATABASES_STATEMENT =
-      "SELECT username as DATNAME FROM dba_users";
+      "SELECT username  as DATNAME FROM DBA_USERS WHERE CREATED > TO_DATE('2025-01-01', 'YYYY-MM-DD')";
 
   private static final String CREATE_DATABASE_STATEMENT =
       "CREATE USER %s";
