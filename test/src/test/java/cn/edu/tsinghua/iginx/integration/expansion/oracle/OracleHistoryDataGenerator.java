@@ -59,10 +59,11 @@ public class OracleHistoryDataGenerator extends BaseHistoryDataGenerator {
 
   private Connection connect(int port, boolean useSystemDatabase, String databaseName) {
     // 127.0.0.1
+    // 192.168.56.105
     try {
       String url =
           String.format(
-              "jdbc:oracle:thin:system/Oracle123@192.168.56.105:%d/%s",
+              "jdbc:oracle:thin:system/Oracle123@127.0.0.1:%d/%s",
               port, databaseName == null ? "ORCLPDB" : databaseName);
       Class.forName("oracle.jdbc.driver.OracleDriver");
       return DriverManager.getConnection(url);
