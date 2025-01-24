@@ -254,7 +254,7 @@ public class OracleHistoryDataGenerator extends BaseHistoryDataGenerator {
       case FLOAT:
         return "FLOAT";
       case DOUBLE:
-        return "FLOAT";
+        return "NUMBER(38, 10)";
       case BINARY:
       default:
         return "VARCHAR2(4000)";
