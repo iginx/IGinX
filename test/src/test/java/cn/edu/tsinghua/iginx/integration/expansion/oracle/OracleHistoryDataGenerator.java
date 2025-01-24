@@ -59,12 +59,9 @@ public class OracleHistoryDataGenerator extends BaseHistoryDataGenerator {
 
   private Connection connect(int port, boolean useSystemDatabase, String databaseName) {
     try {
-      String url;
-
-      // TODO 获取docker container 虚拟IP 172.17.0.2
-      url =
+      String url =
           String.format(
-              "jdbc:oracle:thin:system/Oracle123@172.17.0.2:%d/%s",
+              "jdbc:oracle:thin:system/Oracle123@127.0.0.1:%d/%s",
               port, databaseName == null ? "ORCLPDB" : databaseName);
       Class.forName("oracle.jdbc.driver.OracleDriver");
       return DriverManager.getConnection(url);
