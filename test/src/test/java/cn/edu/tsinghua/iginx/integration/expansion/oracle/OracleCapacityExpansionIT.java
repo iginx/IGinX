@@ -34,28 +34,29 @@ import static org.junit.Assert.fail;
 public class OracleCapacityExpansionIT extends BaseCapacityExpansionIT {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OracleCapacityExpansionIT.class);
-
+  private static final String oldPass = "Oracle123";
+  private static final String newPass = "newPassword";
   public OracleCapacityExpansionIT() {
     super(
         StorageEngineType.relational,
-        "engine=oracle, username=system",
+        "engine=oracle, username=system, password="+oldPass,
         new OracleHistoryDataGenerator());
     ConfLoader conf = new ConfLoader(Controller.CONFIG_FILE);
     DBConf dbConf = conf.loadDBConf(conf.getStorageType());
     Constant.oriPort = dbConf.getDBCEPortMap().get(Constant.ORI_PORT_NAME);
     Constant.expPort = dbConf.getDBCEPortMap().get(Constant.EXP_PORT_NAME);
     Constant.readOnlyPort = dbConf.getDBCEPortMap().get(Constant.READ_ONLY_PORT_NAME);
-    updatedParams.put("password", "newPassword");
+    updatedParams.put("password", newPass);
   }
 
   @Override
   protected void updateParams(int port) {
-    changeParams(port, null, "newPassword");
+    changeParams(port, newPass);
   }
 
   @Override
   protected void restoreParams(int port) {
-    changeParams(port, "newPassword", null);
+    changeParams(port, oldPass);
   }
 
   @Override
@@ -68,12 +69,10 @@ public class OracleCapacityExpansionIT extends BaseCapacityExpansionIT {
     shutOrRestart(port, false, "oralce");
   }
 
-  private void changeParams(int port, String oldPw, String newPw) {
+  private void changeParams(int port, String newPw) {
     String scriptPath = updateParamsScriptDir + "oralce.sh";
-    String mode = oldPw == null ? "set" : "unset";
-    // 脚本参数：对应端口，模式（是在无密码条件下设置密码，还是在有密码条件下去掉密码），需要设置的密码/需要被去掉的密码
     int res =
-        executeShellScript(scriptPath, String.valueOf(port), mode, oldPw == null ? newPw : oldPw);
+        executeShellScript(scriptPath, String.valueOf(port), newPw);
     if (res != 0) {
       fail("Fail to update oracle params.");
     }

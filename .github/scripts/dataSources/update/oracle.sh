@@ -21,17 +21,8 @@
 CONTAINER_NAME="oracle23-$1"  # 容器名称
 DATABASE_USER="system"
 
-if [ $2 = "set" ]; then
-    # set password when there was none
-    docker exec -it $CONTAINER_NAME bash -c "
+docker exec -it $CONTAINER_NAME bash -c "
       sqlplus -s / as sysdba <<EOF
-      ALTER USER $DATABASE_USER IDENTIFIED BY $3;
+      ALTER USER $DATABASE_USER IDENTIFIED BY $2;
       EXIT;
     EOF"
-else
-   docker exec -it $CONTAINER_NAME bash -c "
-         sqlplus -s / as sysdba <<EOF
-         ALTER USER $DATABASE_USER IDENTIFIED BY NULL;
-         EXIT;
-       EOF"
-fi
