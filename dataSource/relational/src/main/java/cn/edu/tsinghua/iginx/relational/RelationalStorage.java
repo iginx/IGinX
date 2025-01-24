@@ -805,9 +805,9 @@ public class RelationalStorage implements IStorage {
                 String.format(
                     " LEFT JOIN %s ON %s.%s = %s.%s",
                         getTableNameByDB(databaseName, tableNames.get(j)),
-                        getTableNameByDB(databaseName, tableNames.get(i)),
+                        getQuotName(tableNames.get(i)),
                     getQuotName(KEY_NAME),
-                        getTableNameByDB(databaseName, tableNames.get(j)),
+                        getQuotName(tableNames.get(j)),
                     getQuotName(KEY_NAME)));
           }
         }
@@ -1194,6 +1194,8 @@ public class RelationalStorage implements IStorage {
 
       Map<String, Map<String, String>> splitResults =
           splitAndMergeHistoryQueryPatterns(project.getPatterns());
+      // 按列顺序加上表名
+      List<List<String>> tableColumnNames = new ArrayList<>();
       for (Map.Entry<String, Map<String, String>> splitEntry : splitResults.entrySet()) {
         Map<String, String> tableNameToColumnNames = splitEntry.getValue();
         String databaseName = splitEntry.getKey();
@@ -1214,6 +1216,7 @@ public class RelationalStorage implements IStorage {
           Filter expandFilter = expandFilter(filter.copy(), tableNameToColumnNames);
           for (Map.Entry<String, String> entry : splitEntry.getValue().entrySet()) {
             String tableName = entry.getKey();
+            tableColumnNames.add(getColumnNamesWithTable(tableName, entry.getValue(), true));
             String fullQuotColumnNames = getQuotColumnNames(entry.getValue());
             List<String> fullPathList = Arrays.asList(entry.getValue().split(", "));
             fullPathList.replaceAll(
@@ -1248,14 +1251,18 @@ public class RelationalStorage implements IStorage {
         }
         // table中带有了通配符，将所有table都join到一起进行查询，以便输入filter.
         else if (!tableNameToColumnNames.isEmpty()) {
-          List<String> tableNames = new ArrayList<>();
           List<List<String>> fullColumnNamesList = new ArrayList<>();
           List<List<String>> fullQuoteColumnNamesList = new ArrayList<>();
-
+          int firstTalbe = 1; // 只取第一个table的Key列放入结果集中
+          String firstTableName = "";
+          List<String> tmpList = new ArrayList<>();
           // 将columnNames中的列名加上tableName前缀，带JOIN的查询语句中需要用到
           for (Map.Entry<String, String> entry : tableNameToColumnNames.entrySet()) {
             String tableName = entry.getKey();
-            tableNames.add(tableName);
+            if (firstTalbe == 1) {
+              firstTableName = tableName;
+            }
+            tmpList.addAll(getColumnNamesWithTable(tableName, entry.getValue(), firstTalbe++ == 1));
             List<String> columnNames = new ArrayList<>(Arrays.asList(entry.getValue().split(", ")));
             columnNames.replaceAll(s -> RelationSchema.getFullName(tableName, s));
             fullColumnNamesList.add(columnNames);
@@ -1266,8 +1273,8 @@ public class RelationalStorage implements IStorage {
                 s -> RelationSchema.getQuoteFullName(tableName, s, relationalMeta.getQuote()));
             fullQuoteColumnNamesList.add(fullColumnNames);
           }
-
-          String fullTableName = getDummyFullJoinTables(databaseName, tableNames, allColumnNameForTable);
+          tableColumnNames.add(tmpList);
+          String fullTableName = getDummyFullJoinTables(databaseName, tableNameToColumnNames.keySet().stream().collect(Collectors.toList()), allColumnNameForTable);
 
           Filter copyFilter =
               dummyFilterSetTrueByColumnNames(
@@ -1291,8 +1298,8 @@ public class RelationalStorage implements IStorage {
             filterStr = filterStr.replaceAll("`\\.`", ".");
             filterStr =
                 filterStr.replace(
-                    getQuotName(KEY_NAME), getQuotName(tableNames.get(0) + SEPARATOR + KEY_NAME));
-            orderByKey = getQuotName(tableNames.get(0) + SEPARATOR + KEY_NAME);
+                    getQuotName(KEY_NAME), getQuotName(firstTableName + SEPARATOR + KEY_NAME));
+            orderByKey = getQuotName(firstTableName + SEPARATOR + KEY_NAME);
           }
 
           statement =
@@ -1327,6 +1334,7 @@ public class RelationalStorage implements IStorage {
           new ClearEmptyRowStreamWrapper(
               new RelationQueryRowStream(
                   databaseNameList,
+                      tableColumnNames,
                   resultSets,
                   true,
                   filter,
