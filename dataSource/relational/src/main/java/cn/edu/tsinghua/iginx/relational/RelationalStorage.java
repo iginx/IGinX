@@ -798,16 +798,16 @@ public class RelationalStorage implements IStorage {
                 getQuotName(tableNames.get(i) + SEPARATOR + KEY_NAME));
         fullTableName.append(
             String.format(
-                "SELECT %s FROM %s", keyStr + ", " + allColumns, getQuotName(tableNames.get(i))));
+                "SELECT %s FROM %s", keyStr + ", " + allColumns, getTableNameByDB(databaseName, tableNames.get(i))));
         for (int j = 0; j < tableNames.size(); j++) {
           if (i != j) {
             fullTableName.append(
                 String.format(
                     " LEFT JOIN %s ON %s.%s = %s.%s",
-                    getQuotName(tableNames.get(j)),
-                    getQuotName(tableNames.get(i)),
+                        getTableNameByDB(databaseName, tableNames.get(j)),
+                        getTableNameByDB(databaseName, tableNames.get(i)),
                     getQuotName(KEY_NAME),
-                    getQuotName(tableNames.get(j)),
+                        getTableNameByDB(databaseName, tableNames.get(j)),
                     getQuotName(KEY_NAME)));
           }
         }
@@ -859,17 +859,17 @@ public class RelationalStorage implements IStorage {
   }
 
   private String getDummyFullJoinTables(
-      List<String> tableNames, Map<String, List<String>> allColumnNameForTable) {
+      String databaseName, List<String> tableNames, Map<String, List<String>> allColumnNameForTable) {
     StringBuilder fullTableName = new StringBuilder();
     if (relationalMeta.isSupportFullJoin()) {
       // table之间用FULL OUTER JOIN ON concat(table1所有列) = concat(table2所有列)
       // 连接，超过2个table的情况下，需要多次嵌套join
-      fullTableName.append(getQuotName(tableNames.get(0)));
+      fullTableName.append(getTableNameByDB(databaseName,tableNames.get(0)));
       for (int i = 1; i < tableNames.size(); i++) {
         fullTableName.insert(0, "(");
         fullTableName
             .append(" FULL OUTER JOIN ")
-            .append(getQuotName(tableNames.get(i)))
+            .append(getTableNameByDB(databaseName,tableNames.get(i)))
             .append(" ON ");
         for (int j = 0; j < i; j++) {
           fullTableName.append(
@@ -901,13 +901,13 @@ public class RelationalStorage implements IStorage {
                 getQuotName(KEY_NAME), getQuotName(tableNames.get(i) + SEPARATOR + KEY_NAME));
         fullTableName.append(
             String.format(
-                "SELECT %s FROM %s", keyStr + ", " + allColumns, getQuotName(tableNames.get(i))));
+                "SELECT %s FROM %s", keyStr + ", " + allColumns, getTableNameByDB(databaseName,tableNames.get(i))));
         for (int j = 0; j < tableNames.size(); j++) {
           if (i != j) {
             fullTableName.append(
                 String.format(
                     " LEFT JOIN %s ON %s = %s",
-                    getQuotName(tableNames.get(j)),
+                        getTableNameByDB(databaseName,tableNames.get(j)),
                     buildConcat(allColumnNameForTable.get(tableNames.get(i))),
                     buildConcat(allColumnNameForTable.get(tableNames.get(j)))));
           }
@@ -1224,12 +1224,13 @@ public class RelationalStorage implements IStorage {
                         cutFilterDatabaseNameForDummy(expandFilter.copy(), databaseName),
                         fullPathList));
             String concatKey = buildConcat(fullPathList);
+            LOGGER.info("**************{}",databaseName);
             statement =
                 String.format(
                     relationalMeta.getConcatQueryStatement(),
                     concatKey,
                     fullQuotColumnNames,
-                    getQuotName(tableName),
+                    getTableNameByDB(databaseName,tableName),
                     filterStr.isEmpty() ? "" : "WHERE " + filterStr,
                     concatKey);
 
@@ -1266,7 +1267,7 @@ public class RelationalStorage implements IStorage {
             fullQuoteColumnNamesList.add(fullColumnNames);
           }
 
-          String fullTableName = getDummyFullJoinTables(tableNames, allColumnNameForTable);
+          String fullTableName = getDummyFullJoinTables(databaseName, tableNames, allColumnNameForTable);
 
           Filter copyFilter =
               dummyFilterSetTrueByColumnNames(
@@ -1685,6 +1686,9 @@ public class RelationalStorage implements IStorage {
       throws SQLException {
     // <database name, <table name, column names>>
     List<String> databases = getDatabaseNames();
+    patterns.forEach(pattern -> LOGGER.info("++++++++++++{}",pattern));
+    databases.forEach(database -> LOGGER.info("==========={}",database));
+
     Map<String, Map<String, String>> splitResults = new HashMap<>();
     String databaseName;
     String tableName;
@@ -1718,7 +1722,7 @@ public class RelationalStorage implements IStorage {
 
       List<Pattern> patternList = getRegexPatternByName(tableName, columnNames, true);
       Pattern tableNamePattern = patternList.get(0), columnNamePattern = patternList.get(1);
-
+      LOGGER.info("databaseName ==== {}",databaseName);
       if (databaseName.equals("%")) {
         for (String tempDatabaseName : getDatabaseNames()) {
           if (tempDatabaseName.startsWith(DATABASE_PREFIX)) {
