@@ -832,6 +832,9 @@ public class RelationalStorage implements IStorage {
    * @return concat语句
    */
   private String buildConcat(List<String> columnNames) {
+    if (engineName.equals("oracle")) {
+      return columnNames.stream().map(columnName -> String.format(" nvl(%s,'') ",columnName)).collect(Collectors.joining("||"));
+    }
     int n = columnNames.size();
     assert n > 0;
     List<List<String>> concatList = new ArrayList<>();
