@@ -2098,6 +2098,10 @@ public class RelationalStorage implements IStorage {
       StringBuilder statement = new StringBuilder();
       if (engineName.equals("oracle")) {
         Map<String, ColumnField> columnMap = getColumnMap(databaseName, tableName);
+        LOGGER.info("*******************");
+        Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
+        values.forEach(item -> LOGGER.info("{}",item));
+        LOGGER.info("*******************");
         this.batchInsert(conn, databaseName, tableName, columnMap, parts, values);
       } else {
         // INSERT INTO XXX ("key", XXX, ...) VALUES (XXX, XXX, ...), (XXX, XXX, ...), ...,
@@ -2272,6 +2276,10 @@ public class RelationalStorage implements IStorage {
       for (int i = 0; i < insertKeys.size(); i++) {
         String[] vals = valueMap.get(insertKeys.get(i));
         insertStmt.setString(1, vals[0]);
+        LOGGER.info("########################");
+        Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
+        Arrays.stream(vals).forEach(item -> LOGGER.info("{}",item));
+        LOGGER.info("########################");
         for (int j = 0; j < parts.length; j++) {
           if (!columnMap.containsKey(parts[j])) {
             break;
