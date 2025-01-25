@@ -19,6 +19,9 @@
  */
 package cn.edu.tsinghua.iginx.integration.expansion.oracle;
 
+import static cn.edu.tsinghua.iginx.integration.expansion.utils.SQLTestTools.executeShellScript;
+import static org.junit.Assert.fail;
+
 import cn.edu.tsinghua.iginx.exception.SessionException;
 import cn.edu.tsinghua.iginx.integration.controller.Controller;
 import cn.edu.tsinghua.iginx.integration.expansion.BaseCapacityExpansionIT;
@@ -30,18 +33,16 @@ import cn.edu.tsinghua.iginx.thrift.StorageEngineType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static cn.edu.tsinghua.iginx.integration.expansion.utils.SQLTestTools.executeShellScript;
-import static org.junit.Assert.fail;
-
 public class OracleCapacityExpansionIT extends BaseCapacityExpansionIT {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OracleCapacityExpansionIT.class);
   private static final String oldPass = "Oracle123";
   private static final String newPass = "newPassword";
+
   public OracleCapacityExpansionIT() {
     super(
         StorageEngineType.relational,
-        "engine=oracle, username=system, password="+oldPass,
+        "engine=oracle, username=system, password=" + oldPass,
         new OracleHistoryDataGenerator());
     ConfLoader conf = new ConfLoader(Controller.CONFIG_FILE);
     DBConf dbConf = conf.loadDBConf(conf.getStorageType());
@@ -73,12 +74,12 @@ public class OracleCapacityExpansionIT extends BaseCapacityExpansionIT {
 
   private void changeParams(int port, String newPw) {
     String scriptPath = updateParamsScriptDir + "oracle.sh";
-    int res =
-        executeShellScript(scriptPath, String.valueOf(port), newPw);
+    int res = executeShellScript(scriptPath, String.valueOf(port), newPw);
     if (res != 0) {
       fail("Fail to update oracle params.");
     }
   }
+
   protected void shutOrRestart(int port, boolean mode, String DBName) {
     String dir = mode ? shutdownScriptDir : restartScriptDir;
     String scriptPath = dir + DBName + ".sh";
@@ -93,33 +94,33 @@ public class OracleCapacityExpansionIT extends BaseCapacityExpansionIT {
     // before
     String statement = "select status from mn.wf01.wt01;";
     String expected =
-            "ResultSets:\n"
-                    + "+-----------------+-------------------+\n"
-                    + "|              key|mn.wf01.wt01.status|\n"
-                    + "+-----------------+-------------------+\n"
-                    + "|32690615153702352|           11111111|\n"
-                    + "|33357770565002400|           22222222|\n"
-                    + "+-----------------+-------------------+\n"
-                    + "Total line number = 2\n";
+        "ResultSets:\n"
+            + "+-----------------+-------------------+\n"
+            + "|              key|mn.wf01.wt01.status|\n"
+            + "+-----------------+-------------------+\n"
+            + "|32690615153702352|           11111111|\n"
+            + "|33357770565002400|           22222222|\n"
+            + "+-----------------+-------------------+\n"
+            + "Total line number = 2\n";
     SQLTestTools.executeAndCompare(session, statement, expected);
 
     String insert =
-            "insert into mn.wf01.wt01 (key, status) values (10, 33333333), (100, 44444444);";
+        "insert into mn.wf01.wt01 (key, status) values (10, 33333333), (100, 44444444);";
     session.executeSql(insert);
 
     // after
     statement = "select status from mn.wf01.wt01;";
     expected =
-            "ResultSets:\n"
-                    + "+-----------------+-------------------+\n"
-                    + "|              key|mn.wf01.wt01.status|\n"
-                    + "+-----------------+-------------------+\n"
-                    + "|               10|           33333333|\n"
-                    + "|              100|           44444444|\n"
-                    + "|32690615153702352|           11111111|\n"
-                    + "|33357770565002400|           22222222|\n"
-                    + "+-----------------+-------------------+\n"
-                    + "Total line number = 4\n";
+        "ResultSets:\n"
+            + "+-----------------+-------------------+\n"
+            + "|              key|mn.wf01.wt01.status|\n"
+            + "+-----------------+-------------------+\n"
+            + "|               10|           33333333|\n"
+            + "|              100|           44444444|\n"
+            + "|32690615153702352|           11111111|\n"
+            + "|33357770565002400|           22222222|\n"
+            + "+-----------------+-------------------+\n"
+            + "Total line number = 4\n";
     SQLTestTools.executeAndCompare(session, statement, expected);
   }
 }
