@@ -2213,10 +2213,11 @@ public class RelationalStorage implements IStorage {
       List<String> values) {
     Map<String, String[]> valueMap =
         values.stream()
+                .map(RelationalStorage::splitByCommaWithQuotes)
             .collect(
                 Collectors.toMap(
-                    value -> value.substring(0, value.length() - 2).split(", ")[0],
-                    value -> value.substring(0, value.length() - 2).split(", ")));
+                               arr -> arr[0],
+                                arr -> Arrays.copyOfRange(arr, 1, arr.length)));
     List<String> allKeys = new ArrayList<>(valueMap.keySet());
     List<String> insertKeys = new ArrayList<>();
     List<String> updateKeys = new ArrayList<>();
@@ -2403,5 +2404,27 @@ public class RelationalStorage implements IStorage {
       name = getQuotName(name);
     }
     return name;
+  }
+
+  public static String[] splitByCommaWithQuotes(String input) {
+    List<String> resultList = new ArrayList<>();
+    StringBuilder currentPart = new StringBuilder();
+    boolean insideQuotes = false;
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      if (c == ',' && !insideQuotes) {
+        resultList.add(currentPart.toString().trim());
+        currentPart.setLength(0);  // 清空当前部分
+      } else if (c == '\'' || c == '\"') {
+        insideQuotes = !insideQuotes;
+        currentPart.append(c);
+      } else {
+        currentPart.append(c);
+      }
+    }
+    if (currentPart.length() > 0) {
+      resultList.add(currentPart.toString().trim());
+    }
+    return resultList.toArray(new String[0]);
   }
 }
