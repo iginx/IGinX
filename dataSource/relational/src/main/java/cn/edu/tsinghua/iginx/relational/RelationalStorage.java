@@ -2406,7 +2406,7 @@ public class RelationalStorage implements IStorage {
 
   public static String[] splitByCommaWithQuotes(String input) {
     // 引号中不包含逗号时，使用split方式返回
-    String regex = "\"[^\"]*，[^\"\"]*\"|'[^']*，[^']*'";
+    String regex = "\"[^\"]*,[^\"\"]*\"|'[^']*,[^']*'";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(input);
     boolean containsCommaWithQuotes = false;
