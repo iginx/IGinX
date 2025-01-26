@@ -2411,7 +2411,7 @@ public class RelationalStorage implements IStorage {
     Matcher matcher = pattern.matcher(input);
     boolean containsCommaWithQuotes = false;
     while (matcher.find()) {
-      System.out.println("Found: " + matcher.group());
+      System.out.println("Found: " + matcher.group() + "++"+input);
       containsCommaWithQuotes = true;
       break;
     }
