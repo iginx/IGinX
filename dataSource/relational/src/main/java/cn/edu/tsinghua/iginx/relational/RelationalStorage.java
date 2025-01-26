@@ -2410,6 +2410,9 @@ public class RelationalStorage implements IStorage {
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(input);
     boolean containsCommaWithQuotes = false;
+    if(input.contains("Supplier#000000801")){
+      System.out.println(input);
+    }
     while (matcher.find() && matcher.group().contains(",")) {
       System.out.println("Found: " + matcher.group() + "++"+input);
       containsCommaWithQuotes = true;
