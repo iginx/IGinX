@@ -2098,10 +2098,10 @@ public class RelationalStorage implements IStorage {
       StringBuilder statement = new StringBuilder();
       if (engineName.equals("oracle")) {
         Map<String, ColumnField> columnMap = getColumnMap(databaseName, tableName);
-//        LOGGER.info("*******************");
-//        Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
-//        values.forEach(item -> LOGGER.info("{}",item));
-//        LOGGER.info("*******************");
+        //        LOGGER.info("*******************");
+        //        Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
+        //        values.forEach(item -> LOGGER.info("{}",item));
+        //        LOGGER.info("*******************");
         this.batchInsert(conn, databaseName, tableName, columnMap, parts, values);
       } else {
         // INSERT INTO XXX ("key", XXX, ...) VALUES (XXX, XXX, ...), (XXX, XXX, ...), ...,
@@ -2276,12 +2276,12 @@ public class RelationalStorage implements IStorage {
         String[] vals = valueMap.get(insertKeys.get(i));
         insertStmt.setString(1, vals[0]);
         ArrayList arrayList = new ArrayList<>(Arrays.asList(vals));
-//        if(arrayList.contains("Supplier#000000801")){
-//          LOGGER.info("########################");
-//          Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
-//          Arrays.stream(vals).forEach(item -> LOGGER.info("{}",item));
-//          LOGGER.info("########################");
-//        }
+        //        if(arrayList.contains("Supplier#000000801")){
+        //          LOGGER.info("########################");
+        //          Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
+        //          Arrays.stream(vals).forEach(item -> LOGGER.info("{}",item));
+        //          LOGGER.info("########################");
+        //        }
         for (int j = 0; j < parts.length; j++) {
           if (!columnMap.containsKey(parts[j])) {
             break;
@@ -2414,13 +2414,13 @@ public class RelationalStorage implements IStorage {
     Matcher matcher = pattern.matcher(input);
     boolean containsCommaWithQuotes = false;
     while (matcher.find()) {
-      if(matcher.group().contains(",")){
-        System.out.println("Found: " + matcher.group() + "++"+input);
+      if (matcher.group().contains(",")) {
+        System.out.println("Found: " + matcher.group() + "++" + input);
         containsCommaWithQuotes = true;
         break;
       }
     }
-    if(!containsCommaWithQuotes){
+    if (!containsCommaWithQuotes) {
       return Arrays.stream(input.split(",")).map(String::trim).toArray(String[]::new);
     }
 
