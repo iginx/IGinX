@@ -2213,6 +2213,7 @@ public class RelationalStorage implements IStorage {
       List<String> values) {
     Map<String, String[]> valueMap =
         values.stream()
+                .map(value -> value.substring(0,value.length() - 2))
                 .map(RelationalStorage::splitByCommaWithQuotes)
             .collect(
                 Collectors.toMap(
