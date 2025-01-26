@@ -2275,10 +2275,13 @@ public class RelationalStorage implements IStorage {
       for (int i = 0; i < insertKeys.size(); i++) {
         String[] vals = valueMap.get(insertKeys.get(i));
         insertStmt.setString(1, vals[0]);
-//        LOGGER.info("########################");
-//        Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
-//        Arrays.stream(vals).forEach(item -> LOGGER.info("{}",item));
-//        LOGGER.info("########################");
+        ArrayList arrayList = new ArrayList<>(Arrays.asList(vals));
+        if(arrayList.contains("Supplier#000000801")){
+          LOGGER.info("########################");
+          Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
+          Arrays.stream(vals).forEach(item -> LOGGER.info("{}",item));
+          LOGGER.info("########################");
+        }
         for (int j = 0; j < parts.length; j++) {
           if (!columnMap.containsKey(parts[j])) {
             break;
