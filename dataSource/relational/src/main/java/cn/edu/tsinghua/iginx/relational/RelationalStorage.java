@@ -2098,10 +2098,10 @@ public class RelationalStorage implements IStorage {
       StringBuilder statement = new StringBuilder();
       if (engineName.equals("oracle")) {
         Map<String, ColumnField> columnMap = getColumnMap(databaseName, tableName);
-        LOGGER.info("*******************");
-        Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
-        values.forEach(item -> LOGGER.info("{}",item));
-        LOGGER.info("*******************");
+//        LOGGER.info("*******************");
+//        Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
+//        values.forEach(item -> LOGGER.info("{}",item));
+//        LOGGER.info("*******************");
         this.batchInsert(conn, databaseName, tableName, columnMap, parts, values);
       } else {
         // INSERT INTO XXX ("key", XXX, ...) VALUES (XXX, XXX, ...), (XXX, XXX, ...), ...,
@@ -2213,12 +2213,9 @@ public class RelationalStorage implements IStorage {
       List<String> values) {
     Map<String, String[]> valueMap =
         values.stream()
-                .map(value -> value.substring(0,value.length() - 2))
-                .map(RelationalStorage::splitByCommaWithQuotes)
-            .collect(
-                Collectors.toMap(
-                               arr -> arr[0],
-                                arr -> arr));
+            .map(value -> value.substring(0, value.length() - 2))
+            .map(RelationalStorage::splitByCommaWithQuotes)
+            .collect(Collectors.toMap(arr -> arr[0], arr -> arr));
     List<String> allKeys = new ArrayList<>(valueMap.keySet());
     List<String> insertKeys = new ArrayList<>();
     List<String> updateKeys = new ArrayList<>();
@@ -2278,10 +2275,10 @@ public class RelationalStorage implements IStorage {
       for (int i = 0; i < insertKeys.size(); i++) {
         String[] vals = valueMap.get(insertKeys.get(i));
         insertStmt.setString(1, vals[0]);
-        LOGGER.info("########################");
-        Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
-        Arrays.stream(vals).forEach(item -> LOGGER.info("{}",item));
-        LOGGER.info("########################");
+//        LOGGER.info("########################");
+//        Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
+//        Arrays.stream(vals).forEach(item -> LOGGER.info("{}",item));
+//        LOGGER.info("########################");
         for (int j = 0; j < parts.length; j++) {
           if (!columnMap.containsKey(parts[j])) {
             break;
@@ -2408,6 +2405,20 @@ public class RelationalStorage implements IStorage {
   }
 
   public static String[] splitByCommaWithQuotes(String input) {
+    // 引号中不包含逗号时，使用split方式返回
+    String regex = "['\"][^'\"]*,[^'\"]*['\"]";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(input);
+    boolean containsCommaWithQuotes = false;
+    while (matcher.find()) {
+      System.out.println("Found: " + matcher.group());
+      containsCommaWithQuotes = true;
+      break;
+    }
+    if(!containsCommaWithQuotes){
+      return Arrays.stream(input.split(",")).map(String::trim).toArray(String[]::new);
+    }
+
     List<String> resultList = new ArrayList<>();
     StringBuilder currentPart = new StringBuilder();
     boolean insideQuotes = false;
@@ -2415,7 +2426,7 @@ public class RelationalStorage implements IStorage {
       char c = input.charAt(i);
       if (c == ',' && !insideQuotes) {
         resultList.add(currentPart.toString().trim());
-        currentPart.setLength(0);  // 清空当前部分
+        currentPart.setLength(0); // 清空当前部分
       } else if (c == '\'' || c == '\"') {
         insideQuotes = !insideQuotes;
         currentPart.append(c);
