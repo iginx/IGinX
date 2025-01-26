@@ -2218,7 +2218,7 @@ public class RelationalStorage implements IStorage {
             .collect(
                 Collectors.toMap(
                                arr -> arr[0],
-                                arr -> Arrays.copyOfRange(arr, 1, arr.length)));
+                                arr -> arr));
     List<String> allKeys = new ArrayList<>(valueMap.keySet());
     List<String> insertKeys = new ArrayList<>();
     List<String> updateKeys = new ArrayList<>();
