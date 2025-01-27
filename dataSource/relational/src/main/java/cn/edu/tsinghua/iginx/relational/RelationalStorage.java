@@ -121,9 +121,9 @@ public class RelationalStorage implements IStorage {
     }
 
     // oracle只能针对实例（SID）建立连接，databaseName在oracle中对应的是user/schema
-    if (engineName.equals("oracle")) {
-      databaseName = relationalMeta.getDefaultDatabaseName();
-    }
+//    if (engineName.equals("oracle")) {
+//      databaseName = relationalMeta.getDefaultDatabaseName();
+//    }
 
     HikariDataSource dataSource = connectionPoolMap.get(databaseName);
     if (dataSource != null) {
