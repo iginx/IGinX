@@ -120,11 +120,6 @@ public class RelationalStorage implements IStorage {
     } catch (SQLException ignored) {
     }
 
-    // oracle只能针对实例（SID）建立连接，databaseName在oracle中对应的是user/schema
-    //    if (engineName.equals("oracle")) {
-    //      databaseName = relationalMeta.getDefaultDatabaseName();
-    //    }
-
     HikariDataSource dataSource = connectionPoolMap.get(databaseName);
     if (dataSource != null) {
       try {
@@ -143,9 +138,9 @@ public class RelationalStorage implements IStorage {
       config.addDataSourceProperty(
           "prepStmtCacheSize", meta.getExtraParams().getOrDefault("prep_stmt_cache_size", "250"));
       config.setLeakDetectionThreshold(
-          Long.parseLong(meta.getExtraParams().getOrDefault("leak_detection_threshold", "50000")));
+          Long.parseLong(meta.getExtraParams().getOrDefault("leak_detection_threshold", "60000")));
       config.setConnectionTimeout(
-          Long.parseLong(meta.getExtraParams().getOrDefault("connection_timeout", "30000")));
+          Long.parseLong(meta.getExtraParams().getOrDefault("connection_timeout", "50000")));
       config.setIdleTimeout(
           Long.parseLong(meta.getExtraParams().getOrDefault("idle_timeout", "10000")));
       config.setMaximumPoolSize(
@@ -2098,10 +2093,6 @@ public class RelationalStorage implements IStorage {
       StringBuilder statement = new StringBuilder();
       if (engineName.equals("oracle")) {
         Map<String, ColumnField> columnMap = getColumnMap(databaseName, tableName);
-        //        LOGGER.info("*******************");
-        //        Arrays.stream(parts).forEach(item -> LOGGER.info("{}",item));
-        //        values.forEach(item -> LOGGER.info("{}",item));
-        //        LOGGER.info("*******************");
         this.batchInsert(conn, databaseName, tableName, columnMap, parts, values);
       } else {
         // INSERT INTO XXX ("key", XXX, ...) VALUES (XXX, XXX, ...), (XXX, XXX, ...), ...,
