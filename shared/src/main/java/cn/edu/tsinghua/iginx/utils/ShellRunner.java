@@ -34,8 +34,9 @@ public class ShellRunner {
     Process p = null;
     try {
       ProcessBuilder builder = new ProcessBuilder();
-      if (isOnWin()) {;
-        builder.command((isCommandOnPath("bash") ? "bash" : BASH_PATH), command);
+      if (isOnWin()) {
+        // 默认使用Git Bash,安装WSL只用于启动docker服务而不用于程序执行环境，因其缺少基础环境变量，比如JAVA_HOME等
+        builder.command(BASH_PATH, command);
       } else {
         builder.command(command);
       }
